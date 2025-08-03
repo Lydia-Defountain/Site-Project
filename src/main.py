@@ -1,4 +1,5 @@
 import os
+import sys
 import shutil
 from blocks import generate_page
 
@@ -20,27 +21,31 @@ def copy_directory(directory_path, destination_path):
                 copy_directory(path, new_directory_destination)
             
 
-def generate_pages_recursive(dir_path_content, template_path, dest_dir_path):
+def generate_pages_recursive(dir_path_content, template_path, dest_dir_path, basepath):
     contents = os.listdir(dir_path_content)
     if contents:
         for content in contents:
             path = os.path.join(dir_path_content, content)
             destination_path = os.path.join(dest_dir_path, content)
             if os.path.isfile(path) and path.endswith(".md"):
-                generate_page(path, template_path, (destination_path[:-2] + "html"))
+                generate_page(path, template_path, (destination_path[:-2] + "html"), basepath)
             else:
                 if os.path.isdir(path):
-                    generate_pages_recursive(path, template_path, destination_path)
+                    generate_pages_recursive(path, template_path, destination_path, basepath)
                 
 
 
 
 def main():
-    if os.path.exists("public"):
-        shutil.rmtree("public")
-    os.mkdir("public")
-    copy_directory("static", "public")
-    generate_pages_recursive("content", "template.html", "public")
+    if len(sys.argv) != 2:
+        basepath = "/"
+    else:
+        basepath = sys.argv[1]
+    if os.path.exists("docs"):
+        shutil.rmtree("docs")
+    os.mkdir("docs")
+    copy_directory("static", "docs")
+    generate_pages_recursive("content", "template.html", "docs", basepath)
 
 if __name__ == "__main__":
     main()

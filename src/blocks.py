@@ -133,7 +133,7 @@ def extract_title(markdown):
             return content.strip()
     raise Exception("There must be a main title starting with # ")
 
-def generate_page(from_path, template_path, dest_path):
+def generate_page(from_path, template_path, dest_path, basepath):
     if os.path.exists(from_path):
         if os.path.exists(template_path):
             print(f"Generating page from {from_path} to {dest_path} using {template_path}")
@@ -145,7 +145,9 @@ def generate_page(from_path, template_path, dest_path):
             source_as_html = almost_html.to_html()
             title = extract_title(source_markdown)
             template = template.replace("{{ Title }}", title)
-            full_html_page = template.replace("{{ Content }}", source_as_html)
+            template = template.replace("{{ Content }}", source_as_html)
+            template = template.replace('href="/', f'href="{basepath}')
+            full_html_page = template.replace('src="/', f'src="{basepath}')
             os.makedirs(os.path.dirname(dest_path), exist_ok=True)
             with open(dest_path, "w") as w:
                 w.write(full_html_page)
