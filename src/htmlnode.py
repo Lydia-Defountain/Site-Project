@@ -22,15 +22,31 @@ class HTMLNode():
     
 
 class LeafNode(HTMLNode):
-    def __init__(self, value, tag=None, props=None):
+    def __init__(self, tag, value, props=None):
         super().__init__(tag, value, None, props)
     
     def to_html(self):
-        if not self.value:
+        """changing from markdown to HTML for the leaf nodes"""
+        if self.value is None:
             raise ValueError
         if not self.tag:
             return f"{self.value}"
         else:
             return f'<{self.tag}{self.props_to_html()}>{self.value}</{self.tag}>'
         
+
+class ParentNode(HTMLNode):
+    """Parent Node for the HTML"""
+    def __init__(self, tag, children, props=None):
+        super().__init__(tag, None, children, props)
+
+    def to_html(self):
+        html_so_far = ""
+        if not self.tag:
+            raise ValueError("ParentNode requires a tag")
+        if not self.children:
+            raise ValueError("ParentNode requires children")
+        for child in self.children:
+            html_so_far = html_so_far + child.to_html()
+        return f'<{self.tag}{self.props_to_html()}>{html_so_far}</{self.tag}>'
 
